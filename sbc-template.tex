@@ -19,7 +19,7 @@
      
 \sloppy
 
-\title{Cobertura e Acessibilidade: Aplicação de P-Médianas e PLMC em um Recorte Urbano}
+\title{Cobertura e Acessibilidade: Aplicação de P-Medianas e PLMC em um Recorte Urbano}
 
 \author{Anthony França, Antônio Neto, Enzo Santana, Franck Vasconcelos,\\
 Murilo Mota, Rafael Gonçalves, Rene Marinho}
@@ -32,7 +32,7 @@ Murilo Mota, Rafael Gonçalves, Rene Marinho}
 \maketitle
      
 \begin{resumo}
-Este estudo apresenta um panorama das principais formulações dos Problemas de Localização de Instalações (Facility Location Problems — FLPs) e suas aplicações em contextos urbanos. Apresenta-se um cenário ilustrativo que compara duas formulações clássicas: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura (PLMC). Descrevem-se as metodologias empregadas para cada variante e discutem-se as implicações práticas e as limitações de uma análise exploratória baseada em dados abertos, destacando como diferentes abordagens servem a objetivos distintos, reduzir deslocamentos médios ou ampliar a cobertura territorial.
+Este estudo apresenta um panorama das principais formulações dos Problemas de Localização de Instalações (Facility Location Problems — FLPs) e suas aplicações em contextos urbanos. Apresenta-se também um cenário ilustrativo que compara duas formulações clássicas: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura (PLMC). Descrevem-se as metodologias empregadas para cada variante e são discutidas as implicações práticas e as limitações de uma análise exploratória baseada em dados abertos, destacando como diferentes abordagens servem a objetivos distintos, reduzir deslocamentos médios ou ampliar a cobertura territorial.
 \end{resumo}
 
 \section{Introdução}
@@ -57,11 +57,10 @@ No presente trabalho, ainda que de forma simplificada e exploratória, procedeu-
 
 \subsection{Objetivos}
 
-O objetivo deste estudo foi conduzir uma análise exploratória, baseada em métodos clássicos de localização de instalações, para examinar a distribuição espacial das farmácias no bairro Centro de Aracaju, a partir de dados extraídos do OpenStreetMap. Mais especificamente, os objetivos realizados foram:
+O objetivo deste estudo foi conduzir uma análise exploratória, baseada em métodos clássicos de localização de instalações, para examinar a distribuição espacial das farmácias ao redor do Centro de Aracaju, a partir de dados extraídos do OpenStreetMap, por meio das plataformas uMap e Overpasss. Mais especificamente, os objetivos realizados foram:
 
 \begin{itemize}
-    \item obter e preparar dados geoespaciais do OSM relativos às farmácias do bairro;
-    \item gerar mapas de localização e faixas de cobertura para pedestres, raio de 400\,m, e analisar qualitativamente a sobreposição e as lacunas de cobertura observadas;
+    \item obter e preparar dados geoespaciais do OSM relativos a nós de serviço e demanda na região;
     \item ilustrar, de maneira conceitual, o comportamento esperado de duas formulações clássicas: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura (PLMC).
 \end{itemize}
 
@@ -153,70 +152,237 @@ O modelo de Programação Inteira do PLMC pode ser formulado como:
 
 No cenário descrito a seguir, esses dois métodos foram utilizados para analisar a disposição de instalações de farmácias no bairro Centro de Aracaju, com base em dados obtidos pelo OpenStreetMap. O bairro foi representado em uma projeção cartográfica e os estabelecimentos foram identificados a partir dos dados do OpenStreetMap. Em seguida, avaliou-se o posicionamento dessas instalações segundo o problema das P-Medianas e o PLMC, conforme detalhado a seguir.
 
-\section{Procedimentos Metodológicos}
+\section{Metodologia}
 
-Esta pesquisa adota uma abordagem exploratória fundamentada em modelos clássicos de localização de instalações, visando analisar a distribuição espacial de estabelecimentos de farmácia no bairro Centro de Aracaju. Optou-se por uma metodologia simples, meramente ilustrativa, para demonstrar como conceitos consolidados na literatura podem ser aplicados a um recorte territorial específico, sem pretensão de exaustividade ou sofisticação técnica. O procedimento metodológico foi estruturado em quatro etapas principais:
+A metodologia adotada neste trabalho tem como objetivo demonstrar, de forma prática, a aplicação de modelos clássicos de Localização de Instalações, com foco nos problemas de $p$-Medianas e no Problema da Máxima Cobertura Limitada por $p$ Instalações (PLMC ou MCLP). Para isso, estruturou-se um processo experimental composto por: (i) extração manual dos dados do cenário; (ii) modelagem e representação dos nós de demanda e de instalação; e (iii) utilização de uma ferramenta computacional capaz de simular e resolver os modelos formulados.
 
-\subsection{Coleta e preparação dos dados}
+\subsection{Caracterização do Cenário}
 
-Dados espaciais de acesso aberto foram obtidos por meio da plataforma OpenStreetMap (OSM). Ademais, o tratamento dos dados e a implementação dos métodos foram realizados em um notebook da plataforma Google Colab. Todo o código foi escrito em \texttt{Python}, utilizando-se as seguintes bibliotecas:
+Inicialmente, procede-se à extração manual dos elementos relevantes do cenário analisado. Os pontos de interesse são identificados e representados como \emph{nós de cliente}, contendo informação de custo ou posição espacial, dependendo do modelo a ser aplicado. Em seguida, define-se o conjunto de possíveis instalações, entendido como o conjunto candidato de locais onde instalações poderão ser posicionadas.
+
+No caso do Problema de $p$-Medianas, cada par cliente--instalação é caracterizado por um custo unidimensional, normalmente interpretado como distância ou tempo de deslocamento. Os clientes sempre são atribuídos à instalação aberta que lhes apresenta o menor custo.
+
+Por outro lado, no PLMC, os nós de demanda são representados em um plano bidimensional $(x, y)$, no qual a cobertura é determinada pela verificação de que a distância euclidiana entre um cliente e uma instalação é inferior ou igual ao raio de cobertura estabelecido. Assim, uma instalação cobre um cliente caso:
+\[
+\sqrt{(x_d - x_f)^2 + (y_d - y_f)^2} \leq R.
+\]
+
+\subsection{Estrutura da Ferramenta}
+
+Com o objetivo de facilitar a execução e visualização dos modelos, desenvolveu-se uma aplicação web demonstrativa, de caráter exploratório e não voltada à otimização computacional exaustiva. Dessa forma, o uso da ferramenta restringe-se a cenários com número moderado de nós.
+
+A aplicação foi implementada como uma \emph{Single Page Application} utilizando React (via Next.js) e TypeScript. O estado dos nós é mantido através da biblioteca Zustand. A arquitetura privilegia simplicidade e modularidade, com potencial para integrações futuras com serviços externos mais robustos, capazes de resolver instâncias maiores ou executar algoritmos heurísticos e meta-heurísticos.
+
+\subsection{Métodos de Solução Implementados}
+
+Dois métodos principais foram implementados: um solucionador brute force para o Problema de $p$-Medianas e um solucionador combinatório para o PLMC/MCLP. Ambos consistem na enumeração completa das combinações possíveis de instalações, garantindo solução ótima para instâncias pequenas.
+
+\subsubsection{Cálculo da Matriz de Custos para $p$-Medianas}
+
+Para o modelo de $p$-Medianas, gera-se uma matriz de custos onde cada linha representa um cliente e cada coluna representa uma possível instalação. Cada elemento da matriz corresponde ao custo de servir um cliente a partir de uma instalação. O trecho de código a seguir exemplifica o processo:
+
+\begin{verbatim}
+export const buildCostMatrix = (
+    facilities: FacilityNode[]
+): number[][] | null => {
+
+    const valid = facilities.filter(f =>
+        f.demand.every(d => typeof d.cost === "number")
+    );
+
+    const clientCount = valid[0].demand.length;
+
+    return Array.from({ length: clientCount }, (_, clientIdx) =>
+        valid.map(f => f.demand[clientIdx].cost)
+    );
+};
+\end{verbatim}
+
+A partir dessa matriz, o algoritmo bruto itera sobre todas as combinações possíveis de $p$ instalações:
+
+\begin{verbatim}
+for (const combo of getCombinations(facilityIds, p)) {
+    let totalCost = 0;
+
+    for (let c = 0; c < nClients; c++) {
+        let minCost = Infinity;
+        for (const f of combo) {
+            if (costMatrix[c][f] < minCost) minCost = costMatrix[c][f];
+        }
+        totalCost += minCost;
+    }
+}
+\end{verbatim}
+
+\subsubsection{Construção da Matriz de Cobertura para o PLMC}
+
+No PLMC, o relacionamento entre instalações potenciais e demandas é codificado em uma matriz binária de cobertura. Um cliente é coberto se estiver dentro do raio $R$ da instalação. A seguir, apresenta-se o trecho correspondente:
+
+\begin{verbatim}
+export const buildCoverageMatrix = (
+    facilities: CoverageNode[],
+    demands: CoverageDemand[],
+    radius: number
+): number[][] => {
+    return demands.map(d =>
+        facilities.map(f => {
+            const dist = Math.sqrt(
+                (d.posX - f.posX) ** 2 +
+                (d.posY - f.posY) ** 2
+            );
+            return dist <= radius ? 1 : 0;
+        })
+    );
+};
+\end{verbatim}
+
+\subsubsection{Resolução Exaustiva do PLMC}
+
+O solucionador enumerativo busca identificar qual subconjunto de $p$ instalações maximiza o número de demandas cobertas:
+
+\begin{verbatim}
+for (const combo of getCombinations(facilityIds, p)) {
+    let covered = 0;
+    for (let d = 0; d < nDemands; d++) {
+        if (combo.some(f => coverageMatrix[d][f] === 1)) {
+            covered++;
+        }
+    }
+}
+\end{verbatim}
+
+Após a busca exaustiva, retorna-se o conjunto ótimo de instalações e as respectivas atribuições dos clientes cobertos.
+
+\subsection{Integração Geral do Solucionador}
+
+Foi desenvolvido um módulo unificado para selecionar e executar a formulação adequada:
+
+\begin{verbatim}
+export const solveLocationProblem = ({
+    type,
+    facilitiesPM,
+    facilitiesMC,
+    demandsMC,
+    radius,
+    p
+}) => {
+    if (type === Formulation.PMEDIAN) {
+        return solvePMedian(buildCostMatrix(facilitiesPM)!, p);
+    }
+    if (type === Formulation.MCLP) {
+        const M = buildCoverageMatrix(facilitiesMC, demandsMC, radius!);
+        return solveMCLP(M, p);
+    }
+    return null;
+};
+\end{verbatim}
+
+Esse mecanismo abstrai os detalhes das modelagens individuais, permitindo à aplicação executar e comparar modelos distintos de localização de instalações.
+
+\section{Análise de Cenário}
+
+A seção de análise tem por objetivo interpretar os resultados obtidos pelos modelos de localização (P-Medianas e PLMC/MCLP), quantificar indicadores de desempenho relevantes e avaliar a sensibilidade das soluções às escolhas de parâmetros (por exemplo, \(p\) e \(R\)). A seguir apresentam-se as métricas, procedimentos analíticos, critérios de comparação e considerações sobre robustez e limitações.
+
+\subsection{Métricas de Avaliação}
+
+Para comparar e interpretar soluções geradas pelos diferentes modelos, adotam-se as métricas abaixo:
+
+\paragraph{Objetivo do problema de \(p\)-Medianas}
+\[
+Z_{PM} = \sum_{i=1}^{n} \min_{j \in S} c_{ij},
+\]
+onde \(n\) é o número de demandas (clientes), \(S\) é o conjunto de \(p\) instalações abertas e \(c_{ij}\) é o custo (distância/tempo) de atender o cliente \(i\) pela instalação \(j\). A solução ótima minimiza \(Z_{PM}\).
+
+\paragraph{Taxa de cobertura (PLMC / MCLP)}
+\[
+\text{CoverageRate} = \frac{\sum_{i=1}^{n} \mathbb{1}\{ \exists j \in S:\ d_{ij} \le R\}}{n},
+\]
+onde \(d_{ij}\) é a distância euclidiana entre demanda \(i\) e instalação \(j\), e \(R\) é o raio de cobertura. Esta métrica varia entre \(0\) e \(1\) e expressa a fração de clientes cobertos pela solução.
+
+\paragraph{Distância média de atendimento}
+\[
+\bar{d} = \frac{1}{n} \sum_{i=1}^{n} \min_{j \in S} d_{ij},
+\]
+útil para comparar o grau médio de acessibilidade entre soluções (menor é melhor).
+
+\paragraph{Desempenho computacional}
+Tempo total de execução e memória consumida. Para o método exaustivo emprega-se a expressão assintótica aproximada:
+\[
+T_{\text{bruto}} = \mathcal{O}\!\left(\binom{m}{p}\cdot n \cdot p\right),
+\]
+onde \(m\) é o número de locais candidatos. A fórmula ressalta o crescimento combinatorial com \(m\) e \(p\).
+
+\subsection{Procedimentos Analíticos}
+
+Os passos analíticos realizados para cada instância e para cada modelagem foram:
+
+\begin{enumerate}
+  \item \textbf{Execução dos modelos}: rodar o solucionador de \(p\)-Medianas e o solucionador de PLMC (enumeração exaustiva) sobre o mesmo conjunto de candidatos e demandas.
+  \item \textbf{Cálculo das métricas}: computar \(Z_{PM}\), \(\bar{d}\) e \(\text{CoverageRate}\) para cada solução encontrada.
+  \item \textbf{Comparação entre modelos}: comparar soluções para o mesmo \(p\) em termos de cobertura e custos médios. Discussões focam em trade-offs entre minimizar distância média (P-Medianas) e maximizar cobertura territorial (PLMC).
+  \item \textbf{Visualização espacial}: gerar mapas com (i) posições de clientes; (ii) posições das instalações candidatas; (iii) áreas de cobertura (buffers de raio \(R\)); (iv) instalações selecionadas e demandas atribuídas. Mapas ajudam a interpretar agrupamentos, lacunas de serviço e redundâncias.
+  \item \textbf{Análise de sensibilidade}: variar \(p\) e \(R\) sistematicamente e registrar as métricas para cada combinação. Isso permite estimar retornos marginais (ex.: ganho de cobertura por unidade adicional de \(p\)) e identificar pontos de saturação.
+  \item \textbf{Validação comparativa}: quando disponível, comparar a solução obtida com a configuração real (instalações existentes) e com políticas simples de referência (por exemplo: escolha aleatória de \(p\) locais ou heurística gulosa).
+\end{enumerate}
+
+\subsection{Interpretação dos Resultados}
+
+A interpretação concentra-se em três aspectos principais:
 
 \begin{itemize}
-    \item \texttt{osmnx}: acesso e consulta a dados geográficos do OSM;
-    \item \texttt{folium}: criação de mapas interativos para visualização geográfica;
-    \item \texttt{geopandas}: tratamento de dados espaciais;
+  \item \textbf{Eficiência espacial}: diferenças entre \(\bar{d}\) e \(Z_{PM}\) indicam se a configuração prioritiza distância agregada (P-Medianas) ou cobertura máxima (PLMC). Uma solução com baixa \(\bar{d}\) pode ainda deixar bolsões de população descobertos; inversamente, alta cobertura pode aumentar a distância média para alguns clientes.
+  \item \textbf{Trade-off \(p\) vs.\ cobertura}: curvas de cobertura em função de \(p\) (curva de penetração) permitem identificar pontos de retorno decrescente, úteis para decisões operacionais sobre número de instalações.
+  \item \textbf{Distribuição espacial das atribuições}: mapas de atendimento revelam se a cobertura é homogênea ou concentrada em agregados (clusters). Em áreas com baixa densidade, as soluções ótimas podem optar por cobrir centros de maior demanda em detrimento de áreas periféricas.
 \end{itemize}
 
-\subsection{Modelagem conceitual dos problemas}
+\subsection{Análise de Robustez e Sensibilidade}
 
-Na etapa seguinte, adotaram-se dois modelos clássicos da literatura de localização: o \emph{Problema das P-Medianas} e o \emph{Problema de Localização de Máxima Cobertura} (PLMC). O modelo das P-Medianas objetiva identificar pontos de instalação que minimizem a distância média de deslocamento entre usuários e serviços, enquanto o PLMC busca maximizar a fração da demanda atendida dentro de um raio de cobertura predefinido. A comparação conceitual desses modelos permite analisar o mesmo conjunto de dados sob duas perspectivas distintas, uma orientada pela eficiência dos deslocamentos, acessibilidade média, e outra focada na amplitude da cobertura do serviço.
+Para avaliar robustez das soluções, executa-se:
 
-\subsection{Análise e interpretação do cenário}
+\begin{enumerate}
+  \item \textbf{Variação de \(R\)}: testar um conjunto de raios \(\{R_1, R_2, \dots\}\) e analisar impacto sobre \(\text{CoverageRate}\) e sobre a estabilidade do conjunto \(S\) (quantos pontos da solução mudam quando \(R\) varia).
+  \item \textbf{Variação de \(p\)}: traçar curvas cobertura \(\times\) \(p\) e custo médio \(\times\) \(p\), para identificar zonas de decisões eficientes.
+  \item \textbf{Perturbação espacial}: introduzir pequenas perturbações randômicas nas coordenadas das demandas (bootstrap espacial) e verificar se as soluções permanecem próximas (medida por índice de similaridade entre conjuntos \(S\)).
+  \item \textbf{Análise de sensibilidade a falta de dados}: simular omissão de nós (por exemplo, ausência de certo tipo de pontos OSM) para estimar como a incompletude dos dados altera recomendações.
+\end{enumerate}
 
-Por fim, o cenário resultante da aplicação conceitual do modelo servirá de base para discussão. Pretende-se destacar como diferentes formulações de problemas de localização podem conduzir a interpretações distintas sobre a disposição espacial de serviços no bairro estudado. Ressalta-se que, devido ao caráter exploratório da metodologia adotada, os resultados não são generalizáveis e devem ser interpretados como ilustrações preliminares do potencial de aplicação desses modelos em contextos urbanos.
+\subsection{Complexidade e Limitações Metodológicas}
+
+\paragraph{Escalabilidade} O método exaustivo garante ótimo para instâncias pequenas, porém torna-se impraticável para \(m\) e \(p\) moderados pelo fator combinatório. Na prática, recomenda-se o uso do método exaustivo apenas quando \(\binom{m}{p}\) é computacionalmente factível; caso contrário, deve-se recorrer a heurísticas (por exemplo: algoritmo guloso, buscas locais com swaps \emph{(p-swap)}, algoritmos genéticos, simulated annealing) ou a solucionadores matemáticos que implementem relaxações.
+
+\paragraph{Qualidade dos dados} Dados extraídos do OSM e de consultas OverPass podem conter omissões, imprecisões de posição e discrepâncias semânticas (tags inconsistentes). Esses fatores limitam a validade externa dos resultados e devem ser explicitados como limitações da análise.
+
+\paragraph{Modelo simplificado de atendimento} Tanto \(p\)-Medianas quanto PLMC simplificam várias dimensões reais do problema (capacidade das instalações, horários de funcionamento, atrito temporal, preferências dos usuários). Os resultados devem ser interpretados como análises espaciais de acessibilidade sob hipóteses de atendimento infinito e custo estático.
+
+\subsection{Recomendações e Procedimentos para Reprodutibilidade}
+
+\begin{itemize}
+  \item Incluir os scripts e os GeoJSONs usados na análise como anexos ou repositório suplementar, com versão e seed aleatória quando aplicável.
+  \item Documentar valores testados de \(p\) e \(R\) (por exemplo, \(p\in\{1,\dots,10\}\), \(R\in\{100,200,300\}\) metros).
+  \item Apresentar tabelas sumarizadas com: \(p\), \(\text{CoverageRate}\), \(Z_{PM}\), \(\bar{d}\), tempo de execução e tamanho da instância \((n,m)\).
+  \item Quando necessário escalar para instâncias maiores, adotar heurísticas comparadas com o exato em instâncias pequenas para estimar perda de qualidade.
+\end{itemize}
+
+\subsection{Exemplo de Tabela Resumo (sugestão)}
+
+\begin{table}[ht]
+  \centering
+  \caption{Exemplo de tabela resumo de experimentos — cada linha corresponde a uma instância/combinação \((p,R)\).}
+  \begin{tabular}{cccccc}
+    \hline
+    \(p\) & \(R\) (m) & CoverageRate & \(Z_{PM}\) & \(\bar{d}\) (m) & Tempo (s) \\
+    \hline
+    3 & 200 & 0.72 & 12500 & 412 & 3.4 \\
+    4 & 200 & 0.81 & 11820 & 389 & 9.1 \\
+    5 & 300 & 0.93 & 10450 & 331 & 27.8 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\vspace{1ex}
+O conteúdo desta seção foi concebido para orientar a análise crítica e comparativa entre as formulações estudadas, oferecendo métricas e procedimentos reprodutíveis que permitam avaliar a eficácia territorial das soluções propostas e a sensibilidade das decisões de planejamento a parâmetros operacionais.
 
 \section{Resultados}
-\label{sec:resultados}
-
-Nesta seção apresentam-se os resultados obtidos a partir da aplicação exploratória dos modelos de localização discutidos na Seção de Procedimentos Metodológicos. A execução foi demonstrada por meio de uma representação cartográfica do Centro de Aracaju, com base nas localizações das farmácias cadastradas no OpenStreetMap (OSM). O objetivo é evidenciar, de forma qualitativa e comparativa, os efeitos de duas formulações clássicas de localização: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura.
-
-\subsection{Mapeamento e cobertura observada}
-
-A Figura~\ref{fig:loc-farmacias} apresenta a localização das farmácias identificadas no OSM. A Figura~\ref{fig:cobertura-farmacias} mostra as faixas de cobertura para pedestres obtidas ao redor de cada farmácia, empregando-se um raio de 400\,m como referência exploratória.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\linewidth]{Artigo/map-farmacias-loc.png}
-    \caption{Localização das farmácias no Centro de Aracaju identificadas no OSM.}
-    \label{fig:loc-farmacias}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\linewidth]{Artigo/map-farmacias-cobertura.png}
-    \caption{Faixas de cobertura das farmácias com raio de 400\,m.}
-    \label{fig:cobertura-farmacias}
-\end{figure}
-
-\subsection{Análise qualitativa}
-
-Ao analisar a Figura~\ref{fig:cobertura-farmacias} é possível perceber as seguintes situações:
-
-\begin{itemize}
-    \item \textbf{Concentração central:} há sobreposição significativa das faixas de cobertura na porção central do bairro, indicando elevada oferta e redundância de serviços nessa área.
-    \item \textbf{Lacunas:} nas regiões mais afastadas do núcleo observa-se ausência de cobertura, sinalizando menores níveis de acessibilidade sob o critério adotado (400\,m).
-    \item \textbf{Padrão espacial da oferta:} a distribuição das farmácias tende a se concentrar na região com um maior fluxo comercial, comportamento compatível com decisões que visam reduzir a distância entre o estabelecimento e os clientes.
-\end{itemize}
-
-\subsection{Interpretação comparativa: PLMC vs. P-Medianas}
-
-Comparando as duas abordagens conceituais aplicadas ao mesmo conjunto de dados, verifica-se o seguinte:
-
-\begin{itemize}
-    \item O \emph{PLMC} enfatiza a expansão da fração de demanda coberta em um raio predefinido; em cenários com \(P\) restrito e \(d\) curto, a tendência é dispersar instalações para reduzir lacunas de atendimento.
-    \item O modelo das P-Medianas privilegia a minimização da distância média de deslocamento, o que tende a concentrar instalações em áreas de maior densidade de demanda, aumentando a eficiência média de deslocamento, porém potencialmente deixando zonas mais distantes descobertas.
-    \item No caso estudado, a configuração observada das farmácias aproxima-se mais da lógica das P-Medianas: há prioridade na redução das distâncias médias, com consequente presença de lacunas de cobertura em áreas mais remotas.
-\end{itemize}
 
 \section{Conclusão}
 Em síntese, os resultados deste estudo sugerem que a disposição atual das farmácias no Centro de Aracaju favorece a \emph{acessibilidade média} em detrimento da \emph{cobertura máxima} no raio considerado (400\,m). Contudo, tais conclusões são preliminares e limitadas por certas restrições metodológicas:
