@@ -8,7 +8,20 @@
 \usepackage[none]{hyphenat}
 \usepackage{amsmath}
 \usepackage{amssymb} 
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{lipsum}
 \usepackage{float}
+
+\captionsetup{
+    labelsep=period,
+    font=small,
+    justification=centering
+}
+
+\setlength{\intextsep}{10pt}
+\setlength{\floatsep}{12pt}
 
 \makeatletter
 \patchcmd{\@startsection}
@@ -19,7 +32,7 @@
      
 \sloppy
 
-\title{Cobertura e Acessibilidade: Aplicação de P-Médianas e PLMC em um Recorte Urbano}
+\title{Cobertura e Acessibilidade: Aplicação de P-Medianas e PLMC em um Recorte Urbano}
 
 \author{Anthony França, Antônio Neto, Enzo Santana, Franck Vasconcelos,\\
 Murilo Mota, Rafael Gonçalves, Rene Marinho}
@@ -32,7 +45,7 @@ Murilo Mota, Rafael Gonçalves, Rene Marinho}
 \maketitle
      
 \begin{resumo}
-Este estudo apresenta um panorama das principais formulações dos Problemas de Localização de Instalações (Facility Location Problems — FLPs) e suas aplicações em contextos urbanos. Apresenta-se um cenário ilustrativo que compara duas formulações clássicas: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura (PLMC). Descrevem-se as metodologias empregadas para cada variante e discutem-se as implicações práticas e as limitações de uma análise exploratória baseada em dados abertos, destacando como diferentes abordagens servem a objetivos distintos, reduzir deslocamentos médios ou ampliar a cobertura territorial.
+Este estudo apresenta um panorama das principais formulações dos Problemas de Localização de Instalações (Facility Location Problems — FLPs) e suas aplicações em contextos urbanos. Apresenta-se também um cenário ilustrativo que compara duas formulações clássicas: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura (PLMC). Descrevem-se as metodologias empregadas para cada variante e são discutidas as implicações práticas e as limitações de uma análise exploratória baseada em dados abertos e uma aplicação demonstrativa, destacando como diferentes abordagens servem a objetivos distintos, reduzir deslocamentos médios ou ampliar a cobertura territorial e como esses problemas podem ser modelados em solvers simples.
 \end{resumo}
 
 \section{Introdução}
@@ -51,27 +64,31 @@ A seguir, são apresentadas considerações sobre a motivação e os objetivos d
 
 \subsection{Importância do tema}
 
-Os problemas de localização de instalações constituem um campo consolidado de pesquisa, com aplicações que variam desde estudos descritivos da infraestrutura existente até modelos preditivos para o planejamento futuro. Apesar das dificuldades inerentes à simulação de múltiplos cenários reais, em particular quando os dados são limitados ou apresentam incerteza, esse arcabouço teórico oferece ferramentas úteis para analisar a relação entre oferta de serviços e padrões espaciais de demanda.  
+Os problemas de localização de instalações constituem um campo consolidado de pesquisa em otimização e planejamento espacial, com aplicações que abrangem desde diagnósticos da infraestrutura existente até modelos destinados ao suporte de decisões estratégicas para alocação futura de recursos. Apesar das limitações inerentes à simulação de cenários reais, especialmente quando os dados disponíveis são incompletos, heterogêneos ou apresentam incertezas, esse conjunto teórico oferece instrumentos valiosos para examinar a relação entre a oferta de serviços e os padrões territoriais de demanda.
 
-No presente trabalho, ainda que de forma simplificada e exploratória, procedeu-se à extração e ao tratamento de dados abertos (OpenStreetMap). Essas operações possibilitaram gerar representações cartográficas e indicadores básicos de acessibilidade e cobertura. Assim, a relevância prática deste exercício reside na sua capacidade de transformar dados geoespaciais disponíveis em evidências interpretáveis que podem subsidiar reflexões e decisões de planejamento urbano preliminares.
+No contexto deste trabalho, adotou-se uma abordagem simplificada e exploratória, fundamentada na extração e no tratamento de dados abertos provenientes do OpenStreetMap (OSM). Tais procedimentos permitiram gerar representações cartográficas e indicadores iniciais de acessibilidade e cobertura, capazes de evidenciar desigualdades ou concentrações espaciais relevantes. Assim, a relevância prática deste exercício reside na demonstração de como dados geoespaciais acessíveis podem ser transformados em evidências interpretáveis, contribuindo para reflexões preliminares no âmbito do planejamento urbano e da análise territorial.
 
 \subsection{Objetivos}
 
-O objetivo deste estudo foi conduzir uma análise exploratória, baseada em métodos clássicos de localização de instalações, para examinar a distribuição espacial das farmácias no bairro Centro de Aracaju, a partir de dados extraídos do OpenStreetMap. Mais especificamente, os objetivos realizados foram:
+O objetivo geral deste estudo foi conduzir uma análise exploratória, baseada em métodos clássicos de Localização de Instalações, para examinar a distribuição espacial de farmácias em bairros da região central de Aracaju, utilizando dados geoespaciais obtidos do OpenStreetMap por meio das plataformas uMap e Overpass.
+
+De forma mais específica, buscou-se:
 
 \begin{itemize}
-    \item obter e preparar dados geoespaciais do OSM relativos às farmácias do bairro;
-    \item gerar mapas de localização e faixas de cobertura para pedestres, raio de 400\,m, e analisar qualitativamente a sobreposição e as lacunas de cobertura observadas;
-    \item ilustrar, de maneira conceitual, o comportamento esperado de duas formulações clássicas: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura (PLMC).
+    \item Obter, selecionar e preparar dados geoespaciais do OSM referentes a nós de demanda e de serviço na área estudada;
+    \item Criar uma ferramenta de resolução demonstrativa para simular o cenário.
+    \item Ilustrar, de maneira conceitual e aplicada, o comportamento esperado de duas formulações clássicas da literatura: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura (PLMC).
 \end{itemize}
 
-Ressalta-se que o objetivo não incluiu a realização de otimizações numéricas exaustivas nem a modelagem estocástica da demanda; ao invés disso, priorizou-se uma abordagem pragmática e descritiva, adequada ao caráter exploratório do estudo e à disponibilidade dos dados utilizados.
+Ressalta-se que o escopo deste trabalho não contemplou a execução de otimizações numéricas completas, nem a modelagem probabilística da demanda. Optou-se por uma abordagem descritiva e pragmática, compatível com o caráter exploratório da investigação e com o nível de detalhamento dos dados disponíveis.
 
 \section{Trabalhos Relacionados}
 
 Segundo Owen e Daskin (1998), a teoria da localização de instalações teve início em 1909 com o trabalho pioneiro de Alfred Weber, que buscava posicionar um depósito de modo a minimizar a distância total até os clientes. Rushton (1978) descreve esses primeiros esforços como essencialmente analíticos e restritos a formulações matemáticas básicas e representações gráficas rudimentares, com aplicação prática limitada. Somente na década de 1960, com o advento da computação, pesquisadores puderam propor métodos aplicáveis a cenários reais de localização. Mesmo assim, as formulações clássicas mantiveram-se estáticas e determinísticas, considerando parâmetros de demanda e tempos de deslocamento como dados fixos, o que restringe sua flexibilidade diante de condições variáveis.
 
 Estudos mais recentes têm buscado expandir essas abordagens tradicionais, incorporando conceitos de modularidade e dinamicidade. Alarcon-Gerbier e Buscher (2022) ressaltam que a modularidade, viabilizada por meio de unidades de produção realocáveis ou expansíveis e instalações móveis, vem recebendo atenção crescente, com aplicações emergentes em diversos setores. De modo similar, Kang et al. (2023) propuseram um modelo de localização de serviços que considera as preferências dos clientes pelas instalações, além de levar em conta explicitamente as capacidades das unidades, evidenciando a complexidade adicional introduzida por esses fatores. Nesses modelos modernos, pesquisadores ponderam não apenas os custos de transporte e a cobertura da demanda, mas também escolhas comportamentais dos usuários, ampliando os requisitos de viabilidade do sistema.
+
+Em “Uma arquitetura e ferramentas para problemas de localização de facilidades no setor público”, Filho et al. (2010) apresentam uma arquitetura modular para aplicações web voltadas à resolução de FLPs. A proposta organiza o sistema em dois módulos principais: um módulo de otimização, responsável pela execução dos algoritmos de solução, e um módulo de interface, encarregado da interação com o usuário e da visualização dos resultados em ambiente geográfico. Essa separação funcional favorece a escalabilidade e a flexibilidade da aplicação, permitindo sua adaptação a diferentes cenários de planejamento urbano e gestão pública, em conformidade com práticas recomendadas de desenvolvimento de sistemas na área.
 
 As primeiras proposições forneceram uma base conceitual sólida, porém restrita a cenários ideais de operação e atendimentos simplificados. Com o avanço da área, passaram a ser considerados contextos mais complexos, como interrupções no sistema. Um exemplo interessante é o estudo de Ramshani et al. (2019), que aborda um modelo de localização de dois níveis (Two-Level UFLP) sob incertezas de disrupção. Os autores desenvolvem formulações matemáticas e heurísticas para lidar com paralisações em pontos da rede, demonstrando como essas descontinuidades afetam a seleção de locais e as alocações. Esses avanços ilustram a tendência atual de modelagem mais realista dos problemas de localização, incorporando aspectos de resiliência operacional e logística associada às instalações.
 
@@ -151,86 +168,287 @@ O modelo de Programação Inteira do PLMC pode ser formulado como:
 & z_i \in \{0,1\}, && \quad \forall i \in I.
 \end{alignat*}
 
-No cenário descrito a seguir, esses dois métodos foram utilizados para analisar a disposição de instalações de farmácias no bairro Centro de Aracaju, com base em dados obtidos pelo OpenStreetMap. O bairro foi representado em uma projeção cartográfica e os estabelecimentos foram identificados a partir dos dados do OpenStreetMap. Em seguida, avaliou-se o posicionamento dessas instalações segundo o problema das P-Medianas e o PLMC, conforme detalhado a seguir.
+No cenário descrito a seguir, esses dois métodos foram utilizados para analisar a disposição de instalações de farmácias na região central de Aracaju, com base em dados obtidos pelo OpenStreetMap. Os bairros foram representados em uma projeção cartográfica e os estabelecimentos foram identificados a partir dos dados do OpenStreetMap. Em seguida, avaliou-se o posicionamento dessas instalações segundo o problema das P-Medianas e o PLMC, conforme detalhado a seguir.
 
-\section{Procedimentos Metodológicos}
+\section{Metodologia}
 
-Esta pesquisa adota uma abordagem exploratória fundamentada em modelos clássicos de localização de instalações, visando analisar a distribuição espacial de estabelecimentos de farmácia no bairro Centro de Aracaju. Optou-se por uma metodologia simples, meramente ilustrativa, para demonstrar como conceitos consolidados na literatura podem ser aplicados a um recorte territorial específico, sem pretensão de exaustividade ou sofisticação técnica. O procedimento metodológico foi estruturado em quatro etapas principais:
+A metodologia adotada neste trabalho tem como objetivo demonstrar, de forma aplicada, o uso de dois modelos clássicos de Localização de Instalações: o Problema das P-Medianas e o Problema da Máxima Cobertura Limitada por $p$ Instalações (PLMC ou MCLP). Para isso, estruturou-se um procedimento composto por três etapas: (i) extração e preparação dos dados do cenário; (ii) modelagem conceitual dos nós de demanda e de instalação; e (iii) implementação e execução computacional das formulações.
 
-\subsection{Coleta e preparação dos dados}
+\subsection{Análise do Cenário}
 
-Dados espaciais de acesso aberto foram obtidos por meio da plataforma OpenStreetMap (OSM). Ademais, o tratamento dos dados e a implementação dos métodos foram realizados em um notebook da plataforma Google Colab. Todo o código foi escrito em \texttt{Python}, utilizando-se as seguintes bibliotecas:
+Esta seção apresenta, de forma integrada, os procedimentos analíticos adotados para examinar o recorte urbano selecionado, bem como os resultados parciais obtidos durante o processo. Orientada por uma abordagem exploratória, a análise fundamenta-se em representações cartográficas, medidas simplificadas de acessibilidade e conceitos dos modelos de P-Medianas e do Problema de Localização de Máxima Cobertura (PLMC).
 
+Adotou-se um enfoque predominantemente visual e qualitativo, utilizando mapas temáticos para observar a relação entre pontos de demanda e a disponibilidade de serviços farmacêuticos. Para fins desta análise, o ``atendimento'' de um cliente assume caráter ilustrativo: nas P-Medianas é interpretado como distância média ao estabelecimento mais próximo, enquanto no PLMC corresponde ao raio de cobertura definido para cada instalação.
+
+A análise foi organizada em três etapas principais: (i) coleta e preparação dos dados; (ii) modelagem conceitual dos problemas; e (iii) construção das matrizes utilizadas nos modelos.
+
+\subsubsection{Coleta e Preparação dos Dados}
+
+Os dados espaciais foram obtidos a partir da base do OpenStreetMaps (OSM), utilizando-se duas ferramentas complementares: a plataforma uMap, empregada para estilização e visualização do mapa, e a API OverPass, responsável pela consulta dinâmica e geração dos arquivos GeoJSON.
+
+Foram identificadas as farmácias localizadas nos bairros Cirurgia, Centro, Getúlio Vargas e São José, na região central de Aracaju. Para a definição dos nós de demanda, selecionaram-se elementos urbanos associados a fluxo de pessoas ou concentração de serviços potenciais, filtrados pelas seguintes \emph{tags} do OSM: 
 \begin{itemize}
-    \item \texttt{osmnx}: acesso e consulta a dados geográficos do OSM;
-    \item \texttt{folium}: criação de mapas interativos para visualização geográfica;
-    \item \texttt{geopandas}: tratamento de dados espaciais;
+    \item \textbf{Nós de demanda}: \textit{school}, \textit{university}, \textit{hospital}, \textit{clinic}, \textit{doctors}, \textit{social\_facility}, \textit{community\_centre}, \textit{bus\_station}, \textit{public\_transport}, \textit{stop\_position}, e \textit{platform}.
+    \item \textbf{Instalações potenciais}: \textit{pharmacy}.
 \end{itemize}
 
-\subsection{Modelagem conceitual dos problemas}
+Ressalta-se que os resultados obtidos refletem apenas o conteúdo presente na base do OSM, sem verificação em campo, não se pode garantir a completude ou exatidão das informações.
 
-Na etapa seguinte, adotaram-se dois modelos clássicos da literatura de localização: o \emph{Problema das P-Medianas} e o \emph{Problema de Localização de Máxima Cobertura} (PLMC). O modelo das P-Medianas objetiva identificar pontos de instalação que minimizem a distância média de deslocamento entre usuários e serviços, enquanto o PLMC busca maximizar a fração da demanda atendida dentro de um raio de cobertura predefinido. A comparação conceitual desses modelos permite analisar o mesmo conjunto de dados sob duas perspectivas distintas, uma orientada pela eficiência dos deslocamentos, acessibilidade média, e outra focada na amplitude da cobertura do serviço.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\linewidth]{Artigo/map-nos-osm.png}
+    \caption{Nós de demanda marcados em vermelho, e nós de serviço existentes marcados em cinza.}
+    \vspace{-10pt}
+    \label{fig:pmedian}
+\end{figure}
 
-\subsection{Análise e interpretação do cenário}
+\subsubsection{Modelagem Conceitual dos Problemas}
 
-Por fim, o cenário resultante da aplicação conceitual do modelo servirá de base para discussão. Pretende-se destacar como diferentes formulações de problemas de localização podem conduzir a interpretações distintas sobre a disposição espacial de serviços no bairro estudado. Ressalta-se que, devido ao caráter exploratório da metodologia adotada, os resultados não são generalizáveis e devem ser interpretados como ilustrações preliminares do potencial de aplicação desses modelos em contextos urbanos.
+Em virtude das limitações computacionais da ferramenta utilizada na simulação, procedeu-se a uma redução do conjunto inicial de pontos, mantendo-se apenas os grupos mais representativos de demanda e algumas ocorrências isoladas. Após o refinamento, obtiveram-se 14 nós de cliente e 10 nós de possíveis instalações.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\linewidth]{Artigo/nos-filtrados.PNG}
+    \caption{Conjunto reduzido de nós utilizados nas simulações.}
+    \vspace{-8pt}
+    \label{fig:nos-filtrados}
+\end{figure}
+
+Com essa configuração, a plataforma uMap foi utilizada para extrair manualmente as distâncias necessárias à formulação do problema de P-Medianas, gerando, para cada instalação, a distância correspondente a todos os nós de cliente. Os valores coletados foram organizados em uma matriz de distâncias. Para adequação aos limites do simulador desenvolvido, os valores foram posteriormente escalonados por um fator de $1/10$.
+
+As Tabela~\ref{tab:distancias-parte1} e Tabela~\ref{tab:distancias-parte2} apresentam a matriz de distâncias resultante.
+
+\begin{table}[H]
+    \centering
+    \caption{Matriz de distâncias (Parte 1): Clientes C1--C7}
+    \label{tab:distancias-parte1}
+    \begin{tabular}{lccccccc}
+        \hline
+            & C1 & C2 & C3 & C4 & C5 & C6 & C7 \\
+        \hline
+            F1  & 1.3km & 1.8km & 2.3km & 2km & 1.9km & 2.1km & 2.2km \\
+            F2  & 1km & 336.70m & 374.81m & 406.97m & 933.93m & 1.4km & 1.8km \\
+            F3  & 1.2km & 660.42m & 559.01m & 168.71m & 551.85m & 1.1km & 1.7km \\
+            F4  & 1.3km & 1km & 1.1km & 677.66m & 169.22m & 523.92m & 971.11m \\
+            F5  & 1.6km & 1.2km & 1.4km & 835.89m & 313.40m & 431.22m & 686.60m \\
+            F6  & 1.2km & 1.1km & 1.5km & 1.1km & 787.35m & 1km & 1.2km \\
+            F7  & 1.8km & 1.8km & 2.1km & 1.6km & 1.2km & 1.2km & 1.4km \\
+            F8  & 2.1km & 1.9km & 2km & 1.4km & 942.38m & 647.22m & 619.98m \\
+            F9  & 2.2km & 1.8km & 1.9km & 1.4km & 724.15m & 543.20m & 349.11m \\
+            F10 & 2.5km & 2km & 2km & 1.4km & 841.65m & 544.91m & 92.10m \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Matriz de distâncias (Parte 2): Clientes C8--C14}
+    \label{tab:distancias-parte2}
+    \begin{tabular}{lccccccc}
+        \hline
+            & C8 & C9 & C10 & C11 & C12 & C13 & C14 \\
+        \hline
+            F1  & 846.18m & 1.4km & 1.5km & 928.27m & 1.3km & 800.51m & 363.16m \\
+            F2  & 1.2km & 1.1km & 1.4km & 1.6km & 1.8km & 1.7km & 2.1km \\
+            F3  & 1.1km & 916.40m & 1km & 1.3km & 1.5km & 1.7km & 2km \\
+            F4  & 820.42m & 486.63m & 529.46m & 973.95m & 869.65m & 1.8km & 1.9km \\
+            F5  & 818.83m & 477.83m & 315.57m & 718.90m & 740.03m & 1.8km & 2km \\
+            F6  & 245.88m & 145.89m & 535.46m & 374.30m & 729.50m & 1.3km & 1.3km \\
+            F7  & 670.99m & 712.27m & 700.72m & 221.14m & 509.07m & 1.6km & 1.3km \\
+            F8  & 1.1km & 788.22m & 434.65m & 819.25m & 370.32m & 2.2km & 2.1km \\
+            F9  & 1.7km & 1.2km & 851.18m & 1.3km & 922.80m & 2.7km & 2.6km \\
+            F10 & 1.3km & 914.80m & 530.57m & 1km & 550.94m & 2.4km & 2.3km \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Implementação da Ferramenta}
+
+Com o intuito de facilitar a exploração dos modelos, desenvolveu-se uma aplicação web demonstrativa, não orientada à execução de algoritmos de otimização em larga escala. A aplicação foi implementada como uma \textit{Single Page Application} utilizando React (via Next.js) e TypeScript, com gerenciamento de estado via Zustand. A arquitetura privilegia simplicidade, modularidade e possibilidade de futuras integrações com solvers mais robustos.
+
+\subsubsection{Métodos de Solução Desenvolvidos}
+
+Foram implementados dois solucionadores enumerativos, ambos exaustivos:
+
+\begin{itemize}
+    \item \textbf{P-Medianas}: enumeração de todas as combinações possíveis de $p$ instalações, utilizando como entrada a matriz de custos cliente–instalação.
+    \item \textbf{PLMC/MCLP}: enumeração de todas as combinações de $p$ instalações visando maximizar o número de clientes cobertos, com base na matriz binária de cobertura.
+\end{itemize}
+
+\subsubsection{Construção da Matriz de Custos}
+
+A matriz de custos do modelo de P-Medianas é gerada a partir do conjunto de instalações possíveis. Cada instalação contém um vetor de demandas indexado por cliente, permitindo construir uma matriz em que cada linha representa um cliente e cada coluna corresponde a uma instalação candidata. O código responsável por essa operação é:
+
+\begin{verbatim}
+const buildCostMatrix = (facilities) => {
+    const clientCount = valid[0].demand.length;
+    return Array.from({ length: clientCount }, 
+            (_, clientIdx) =>
+                facilities.map(f => f.demand[clientIdx].cost)
+    );
+};
+\end{verbatim}
+
+A matriz gerada pode ser visualizada conceitualmente como:
+
+\[
+\begin{bmatrix}
+\text{cost}_{1,1} & \text{cost}_{1,2} & \cdots & \text{cost}_{1,m} \\
+\text{cost}_{2,1} & \text{cost}_{2,2} & \cdots & \text{cost}_{2,m} \\
+\vdots            & \vdots            & \ddots & \vdots            \\
+\text{cost}_{n,1} & \text{cost}_{n,2} & \cdots & \text{cost}_{n,m}
+\end{bmatrix}
+\]
+
+onde cada elemento \(\text{cost}_{i,j}\) corresponde ao custo obtido diretamente pelo código acima, por meio de \texttt{f.demand[clientIdx].cost}.
+
+\subsubsection{Avaliação das Combinações de Instalações}
+
+Após construída a matriz de custos, o modelo avalia todas as combinações possíveis de instalações de tamanho \(p\). Cada combinação representa uma solução candidata. Para cada solução, o algoritmo percorre todos os clientes e determina o menor custo de alocação entre as instalações pertencentes ao conjunto analisado. O cálculo é implementado da seguinte forma:
+
+\begin{verbatim}
+for (const combo of getCombinations(facilityIds, p)) {
+    let totalCost = 0;
+    for (let c = 0; c < nClients; c++) {
+        let minCost = Infinity;
+        for (const f of combo) {
+            if (costMatrix[c][f] < minCost) 
+                minCost = costMatrix[c][f];
+        }
+        totalCost += minCost;
+    }
+}
+\end{verbatim}
+
+Esse procedimento representa, em termos computacionais, a operação de:
+
+\[
+\text{totalCost} = 
+\sum_{c=1}^{nClients} 
+\min(\text{costMatrix}[c][f_1],\,
+     \text{costMatrix}[c][f_2],\,
+     \ldots,\,
+     \text{costMatrix}[c][f_p]),
+\]
+
+mas substituindo a fórmula matemática pelo cálculo explícito presente no código.
+
+Assim, cada cliente é associado à instalação mais barata dentre as selecionadas, e a soma desses menores custos define a qualidade da solução. O algoritmo avalia todas as combinações possíveis e identifica aquela cujo valor acumulado de \texttt{totalCost} é o menor entre todas as alternativas.
+
+\subsubsection{Matriz de Cobertura do PLMC}
+
+No PLMC, a matriz de cobertura é representada por uma estrutura binária que indica se cada cliente está dentro do raio de cobertura \(R\) de cada instalação candidata. Cada linha da matriz corresponde a um cliente e cada coluna representa uma instalação. O valor é igual a \(1\) quando o cliente está coberto pela instalação e \(0\) caso contrário. O cálculo é realizado diretamente a partir das coordenadas dos pontos:
+
+\begin{verbatim}
+const coverageMatrix = (facilities, demands, radius) => {
+    return demands.map(d =>
+        facilities.map(f => {
+            const dist = Math.sqrt((d.posX - f.posX) ** 2 
+                + (d.posY - f.posY) ** 2);
+            return dist <= radius ? 1 : 0;
+        })
+    );
+};
+\end{verbatim}
+
+Desse modo, a estrutura resultante pode ser representada conceitualmente como:
+
+\[
+\begin{bmatrix}
+b_{1,1} & b_{1,2} & \cdots & b_{1,m} \\
+b_{2,1} & b_{2,2} & \cdots & b_{2,m} \\
+\vdots  & \vdots  & \ddots & \vdots  \\
+b_{n,1} & b_{n,2} & \cdots & b_{n,m}
+\end{bmatrix},
+\]
+
+\subsubsection{Avaliação da Cobertura no PLMC}
+
+Após construída a matriz de cobertura, o PLMC seleciona $p$ instalações e avalia quantos clientes são atendidos por ao menos uma das instalações escolhidas. Esse processo envolve analisar todas as combinações possíveis de tamanho $p$ e medir, para cada uma delas, o alcance total obtido. Para cada combinação, o algoritmo verifica, cliente a cliente, se alguma das instalações da combinação o cobre, usando diretamente os valores da matriz binária.
+
+\begin{verbatim}
+for (const combo of getCombinations(facilityIds, p)) {
+    let covered = 0;
+    for (let d = 0; d < nDemands; d++) {
+        if (combo.some(f => coverageMatrix[d][f] === 1)) {
+            covered++;
+        }
+    }
+}
+\end{verbatim}
+
+Essa lógica corresponde à operação:
+
+\[
+\text{covered} = 
+\sum_{d=1}^{nDemands}
+\mathbf{1}\left(\exists\, f \in \text{combo} \;\;|\;\;
+\text{coverageMatrix}[d][f] = 1\right),
+\]
+
+mas, em vez de empregar equações formais, utiliza diretamente o teste computacional:
+
+\texttt{combo.some(f => coverageMatrix[d][f] == 1)}.
+
+Dessa forma, o número total de nós atendidos é contabilizado explicitamente, e a melhor solução é aquela cuja combinação maximiza o valor acumulado de \texttt{covered}.
 
 \section{Resultados}
-\label{sec:resultados}
 
-Nesta seção apresentam-se os resultados obtidos a partir da aplicação exploratória dos modelos de localização discutidos na Seção de Procedimentos Metodológicos. A execução foi demonstrada por meio de uma representação cartográfica do Centro de Aracaju, com base nas localizações das farmácias cadastradas no OpenStreetMap (OSM). O objetivo é evidenciar, de forma qualitativa e comparativa, os efeitos de duas formulações clássicas de localização: o Problema das P-Medianas e o Problema de Localização de Máxima Cobertura.
+Como resultado do procedimento adotado, foram produzidos tanto uma aplicação funcional, capaz de simular pequenas instâncias dos problemas de P-Medianas e PLMC, quanto a resolução referente ao cenário apresentado anteriormente. A seguir, descreve-se separadamente a aplicação desenvolvida e os resultados obtidos na análise.
 
-\subsection{Mapeamento e cobertura observada}
+\subsection{Aplicação Produzida}
 
-A Figura~\ref{fig:loc-farmacias} apresenta a localização das farmácias identificadas no OSM. A Figura~\ref{fig:cobertura-farmacias} mostra as faixas de cobertura para pedestres obtidas ao redor de cada farmácia, empregando-se um raio de 400\,m como referência exploratória.
+A aplicação possibilita ao usuário selecionar entre duas formulações clássicas de localização de P-Medianas e PLMC. Em ambas as formulações, o valor de \(p\) é informado diretamente no cabeçalho da interface. Em seguida, o usuário pode inserir seus nós de cliente e de instalação utilizando o botão \texttt{Add +} disponível em cada lista. Cada nó recebe um nome definido pelo próprio usuário e pode ser removido clicando no ícone \texttt{X} correspondente.
+
+No modelo de P-Medianas, após a criação dos nós, o usuário seleciona uma instalação e fornece o custo de associação dessa instalação a todos os clientes. Os campos de entrada são exibidos automaticamente abaixo dos ícones dos clientes. A simulação somente pode ser executada quando todos os custos estiverem informados. Uma vez concluído o preenchimento, basta acionar o botão \texttt{Solve} para que, se não houver inconsistências nos dados, a solução seja exibida em um painel disposto na parte inferior da página.
+
+Para o PLMC, o usuário informa o raio de cobertura diretamente no cabeçalho. Os nós podem ser posicionados livremente em um \textit{canvas} interativo localizado na metade inferior da interface. Diferentemente da formulação de P-Medianas, não é necessário posicionar todos os nós para realizar a simulação. Após a execução, as instalações não selecionadas são exibidas em vermelho, enquanto a instalação escolhida é conectada aos clientes que se encontram dentro de seu raio de cobertura.
+
+A aplicação encontra-se disponível em: \texttt{https://e-graph.vercel.app}.
+
+\subsection{Resultado da Análise}
+
+Com os dados preparados, o simulador foi utilizado para resolver as formulações de P-Medianas e PLMC, cada uma com limite de instalações \(P = 1\). O objetivo dessa configuração foi evidenciar, em cada modelo, a instalação que melhor atende aos critérios da formulação.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\linewidth]{Artigo/map-farmacias-loc.png}
-    \caption{Localização das farmácias no Centro de Aracaju identificadas no OSM.}
-    \label{fig:loc-farmacias}
+\centering
+\includegraphics[width=1\linewidth]{Artigo/resolucao_pmedianas.jpg}
+\caption{Solução para o Problema das P-Medianas.}
+\vspace{-10pt}
+\label{fig:pmedian}
 \end{figure}
+
+Para o Problema das \(p\)-Medianas, a solução indica que o nó de instalação F6 apresenta o menor custo agregado de distância em relação aos nós de demanda, totalizando aproximadamente 12,53 km. Dessa forma, conforme a formulação adotada, F6 é a instalação mais eficiente para minimizar a distância média entre os clientes e o serviço.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\linewidth]{Artigo/map-farmacias-cobertura.png}
-    \caption{Faixas de cobertura das farmácias com raio de 400\,m.}
-    \label{fig:cobertura-farmacias}
+\centering
+\includegraphics[width=1\linewidth]{Artigo/resolucao_plmc.jpg}
+\caption{Solução para o PLMC.}
+\vspace{-10pt}
+\label{fig:plmc}
 \end{figure}
 
-\subsection{Análise qualitativa}
-
-Ao analisar a Figura~\ref{fig:cobertura-farmacias} é possível perceber as seguintes situações:
-
-\begin{itemize}
-    \item \textbf{Concentração central:} há sobreposição significativa das faixas de cobertura na porção central do bairro, indicando elevada oferta e redundância de serviços nessa área.
-    \item \textbf{Lacunas:} nas regiões mais afastadas do núcleo observa-se ausência de cobertura, sinalizando menores níveis de acessibilidade sob o critério adotado (400\,m).
-    \item \textbf{Padrão espacial da oferta:} a distribuição das farmácias tende a se concentrar na região com um maior fluxo comercial, comportamento compatível com decisões que visam reduzir a distância entre o estabelecimento e os clientes.
-\end{itemize}
-
-\subsection{Interpretação comparativa: PLMC vs. P-Medianas}
-
-Comparando as duas abordagens conceituais aplicadas ao mesmo conjunto de dados, verifica-se o seguinte:
-
-\begin{itemize}
-    \item O \emph{PLMC} enfatiza a expansão da fração de demanda coberta em um raio predefinido; em cenários com \(P\) restrito e \(d\) curto, a tendência é dispersar instalações para reduzir lacunas de atendimento.
-    \item O modelo das P-Medianas privilegia a minimização da distância média de deslocamento, o que tende a concentrar instalações em áreas de maior densidade de demanda, aumentando a eficiência média de deslocamento, porém potencialmente deixando zonas mais distantes descobertas.
-    \item No caso estudado, a configuração observada das farmácias aproxima-se mais da lógica das P-Medianas: há prioridade na redução das distâncias médias, com consequente presença de lacunas de cobertura em áreas mais remotas.
-\end{itemize}
+No caso do PLMC, com \(P = 1\) e raio de cobertura igual a 1,25 km, o simulador selecionou a instalação F5, que cobre quatro clientes. Ainda assim, observa-se que a cobertura obtida é limitada, evidenciando que uma única instalação não é suficiente para atender de forma satisfatória à distribuição espacial da demanda no cenário analisado.
 
 \section{Conclusão}
-Em síntese, os resultados deste estudo sugerem que a disposição atual das farmácias no Centro de Aracaju favorece a \emph{acessibilidade média} em detrimento da \emph{cobertura máxima} no raio considerado (400\,m). Contudo, tais conclusões são preliminares e limitadas por certas restrições metodológicas:
+
+Os resultados obtidos demonstram soluções compatíveis com o comportamento esperado para cada formulação. No caso das P-Medianas, a instalação F6 foi selecionada por ocupar uma posição relativamente central no conjunto de nós de demanda, favorecendo a minimização das distâncias médias em um cenário caracterizado por dispersão espacial. Já na formulação do PLMC, a instalação F5 foi indicada por estar mais próxima do agrupamento principal de demanda, maximizando o número de clientes atendidos dentro do raio estipulado, embora a cobertura resultante permaneça limitada diante da configuração espacial analisada.
+
+Essas conclusões são preliminares e devem ser interpretadas à luz das restrições metodológicas adotadas, tais como:
 
 \begin{itemize}
-    \item O raio de cobertura adotado (400\,m) é arbitrário e não considera diferentes modais de transporte, o que pode afetar a interpretação dos resultados.
-    \item A análise foi exploratória e não incluiu simulações estocásticas ou otimizações formais, o que reduz a robustez das conclusões.
+\item O raio de cobertura estabelecido para o PLMC, que, apesar de funcional para fins demonstrativos, é arbitrário e não considera fatores como mobilidade urbana, infraestrutura viária ou diferenças entre modais de deslocamento;
+\item O caráter essencialmente exploratório da análise, conduzida sem otimizações formais, calibração de parâmetros ou modelagem estocástica da demanda, o que restringe a robustez e a generalização dos resultados.
 \end{itemize}
 
-Recomenda-se que estudos futuros acerca do cenário elaborado expandam o escopo da aplicação através das seguintes proposições:
+Recomenda-se que trabalhos futuros ampliem o escopo analítico e didático voltado aos Problemas de Localização de Instalações. Os achados indicam que mesmo as formulações mais simples desse campo são capazes de gerar perspectivas intuitivas e coerentes com a realidade espacial estudada, tornando-se valiosas para fins de ensino e compreensão conceitual. Nesse sentido, futuras investigações podem considerar:
+
 \begin{itemize}
-    \item Realizar avaliação conjunta dos dois modelos, examinando possível trade-offs entre o número de farmácias e a distância média dos clientes, incluindo variáveis socioeconômicas e fluxos de demanda para formalizar uma decisão de planejamento.
-    \item Explorem outras formulações de localização, como, CFLP ou TUFLP, por exemplo, e considerem a inclusão de novos elos da cadeia farmacêutica, distribuidoras e clínicas, para ampliar a abrangência da análise.
+\item A incorporação de serviços de GIS à camada de visualização, permitindo análises interativas, reprodutíveis e georreferenciadas com maior precisão;
+\item A expansão da aplicação para modelos dinâmicos ou estocásticos de Problemas de Localização de Instalações, aprimorando a representação da demanda ao longo do tempo.
 \end{itemize}
+
+Em síntese, apesar das limitações, o estudo evidencia o potencial dos modelos clássicos de localização de instalações quando aplicados a dados abertos do OSM, oferecendo um panorama inicial das relações espaciais entre serviços e potenciais usuários no recorte urbano estudado.
 
 \begin{thebibliography}{99}
 
